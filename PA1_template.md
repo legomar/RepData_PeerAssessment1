@@ -63,27 +63,56 @@ For this part the weekdays()\color{red}{\verb|weekdays()|}weekdays() function ma
 ## 1. Loading and preprocessing the data
 
 First, Let's open all of the libraries required
-```{r}
+
+```r
 library(knitr)
 library(lubridate)
+```
+
+```
+## 
+## Attaching package: 'lubridate'
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     date, intersect, setdiff, union
+```
+
+```r
 library(ggplot2)
 ```
 
 
 Let's unzip and read the data
-```{r, echo = TRUE}
+
+```r
 unzip("activity.zip")
 activity<-read.csv("activity.csv")
 ```
 
 Let's transform the date column into date format using lubridate
-```{r, echo = TRUE}
+
+```r
 activity$date<-ymd(activity$date)
 ```
 
 Let's explore the basics of this data
-```{r, echo = TRUE}
+
+```r
 summary(activity)
+```
+
+```
+##      steps             date               interval     
+##  Min.   :  0.00   Min.   :2012-10-01   Min.   :   0.0  
+##  1st Qu.:  0.00   1st Qu.:2012-10-16   1st Qu.: 588.8  
+##  Median :  0.00   Median :2012-10-31   Median :1177.5  
+##  Mean   : 37.38   Mean   :2012-10-31   Mean   :1177.5  
+##  3rd Qu.: 12.00   3rd Qu.:2012-11-15   3rd Qu.:1766.2  
+##  Max.   :806.00   Max.   :2012-11-30   Max.   :2355.0  
+##  NA's   :2304
 ```
 
 
@@ -92,103 +121,162 @@ summary(activity)
 ## 2. What is mean total number of steps taken per day?
 
 Let's calculate the total steps per day
-```{r, echo = TRUE}
+
+```r
 totalStepsByDay<-aggregate(steps~date, activity, sum)
 ```
 
 Let's make a png file that contains the plot1-histogram Total Steps and display it
-```{r, echo = TRUE}
+
+```r
 png("plot1.png")
 plot1<-hist(totalStepsByDay$steps, xlab="Class of Total Number of Steps per day", ylab="Number of Days", main="Total Number of Steps taken each day")
 dev.off()
-
 ```
 
-```{r, echo = FALSE}
-hist(totalStepsByDay$steps, xlab="Class of Total Number of Steps per day", ylab="Number of Days", main="Total Number of Steps taken each day")
 ```
+## png 
+##   2
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 
 
 Let's take a look to the *Mean number of steps taken each day*
-```{r, echo = TRUE}
+
+```r
 mean(totalStepsByDay$steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 
 Let's take a look to the *Median number of steps taken each day*
 
-```{r, echo = TRUE}
+
+```r
 median(totalStepsByDay$steps)
+```
+
+```
+## [1] 10765
 ```
 
 ## 3. What is the average daily activity pattern?
 
 Let's Make a time series plot (i.e. type = “l”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis) and put it on a png file
-```{r, echo = TRUE}
+
+```r
 averageStepsbyInterval<-aggregate(steps~interval, activity, mean)
 png("plot2.png")
 plot2<-with(averageStepsbyInterval, plot(interval, steps, type = "l"))
 dev.off()
 ```
-```{r, echo = FALSE}
-with(averageStepsbyInterval, plot(interval, steps, type = "l"))
+
 ```
+## png 
+##   2
+```
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
 
   Now, let's calculate Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps
-```{r, echo = TRUE}
+
+```r
 averageStepsbyInterval[which.max(averageStepsbyInterval[,2]),1]
+```
+
+```
+## [1] 835
 ```
 
 ## 4. Imputing missing values
 
 Let's Calculate and report *the total number of missing values in the dataset* (i.e. the total number of rows with NAs)
-```{r, echo = TRUE}
+
+```r
 missingIndex<-is.na(activity[,1])
 sum(is.na(activity$steps))
 ```
 
+```
+## [1] 2304
+```
+
 Let's fill in all of the missing values in the dataset with the mean value of steps
-```{r, echo = TRUE}
+
+```r
 averageStepsbyInterval<-aggregate(steps~interval, activity, mean)
 m<-mean(averageStepsbyInterval$steps)
 m
 ```
 
+```
+## [1] 37.3826
+```
+
 Let's Create a new dataset that is equal to the original dataset but with the missing data filled in.
-```{r, echo = TRUE}
+
+```r
 activity1<-activity
 activity1[missingIndex,1]<-m
 head(activity1)
 ```
 
+```
+##     steps       date interval
+## 1 37.3826 2012-10-01        0
+## 2 37.3826 2012-10-01        5
+## 3 37.3826 2012-10-01       10
+## 4 37.3826 2012-10-01       15
+## 5 37.3826 2012-10-01       20
+## 6 37.3826 2012-10-01       25
+```
+
 Do these values differ from the estimates from the first part of the assignment? Let's see *the histogram "Total number of steps taken each day"*
-```{r, echo = TRUE}
+
+```r
 totalStepsByDay1<-aggregate(steps~date, activity1, sum)
 png("plot3.png")
 hist(totalStepsByDay1$steps, xlab="Class of Total Number of Steps per day", ylab="Number of Days", main="Number of Steps taken each day after missing values are imputed")
 dev.off()
 ```
-```{r, echo = FALSE}
-hist(totalStepsByDay1$steps, xlab="Class of Total Number of Steps per day", ylab="Number of Days", main="Number of Steps taken each day after missing values are imputed")
+
 ```
+## png 
+##   2
+```
+![](PA1_template_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
 
 Now, the mean of the total number of steps taken per day:
-```{r, echo = TRUE}
+
+```r
 mean_afterImput<-mean(totalStepsByDay1$steps)
 mean_afterImput
 ```
+
+```
+## [1] 10766.19
+```
 And finally,  the median of the total number of steps taken per day:
-```{r, echo = TRUE}
+
+```r
 median_afterImput<-median(totalStepsByDay1$steps)
 median_afterImput
+```
+
+```
+## [1] 10766.19
 ```
 
 **The difference between the results are not significant since the missing value only represent 13% of the entire data**
 
 ## 5. Are there differences in activity patterns between weekdays and weekends?
 Let's Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day
-```{r, echo = TRUE}
+
+```r
 activity$date <- as.Date(strptime(activity$date, format="%Y-%m-%d"))
 activity$datetype <- sapply(activity$date, function(x) {
         if (weekdays(x) == "Saturday" | weekdays(x) =="Sunday") 
@@ -199,7 +287,8 @@ activity$datetype <- sapply(activity$date, function(x) {
 ```
 
 Let's Make a panel plot containing a time series plot (i.e. 𝚝𝚢𝚙𝚎 = “𝚕”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
-```{r, echo = TRUE}
+
+```r
 png("plot4.png")
 activity_by_date <- aggregate(steps~interval + datetype, activity, mean, na.rm = TRUE)
 ggplot(activity_by_date, aes(x = interval , y = steps, color = datetype)) +
@@ -208,9 +297,9 @@ ggplot(activity_by_date, aes(x = interval , y = steps, color = datetype)) +
        facet_wrap(~datetype, ncol = 1, nrow=2)
 dev.off()
 ```
-```{r, echo = FALSE}
-ggplot(activity_by_date, aes(x = interval , y = steps, color = datetype)) +
-       geom_line() +
-       labs(title = "Average daily steps by type of date", x = "Interval", y = "Average number of steps") +
-       facet_wrap(~datetype, ncol = 1, nrow=2)
+
 ```
+## png 
+##   2
+```
+![](PA1_template_files/figure-html/unnamed-chunk-22-1.png)<!-- -->
